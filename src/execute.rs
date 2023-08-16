@@ -133,7 +133,8 @@ pub fn update_collection(
     creator_wallet: Option<String>,
     mint_groups: Option<Vec<MintGroup>>,
     iterated_uri: Option<bool>,
-    time_can_claim: Option<u64>
+    time_can_claim: Option<u64>,
+    claimed:Option<u64>
 ) -> Result<Response, ContractError> {
     let mut collection = COLLECTIONS.load(deps.storage, collection_addr.clone())?;
 
@@ -175,6 +176,10 @@ pub fn update_collection(
 
     if time_can_claim.is_some() {
         collection.time_can_claim = time_can_claim.unwrap();
+    }
+
+    if claimed.is_some() {
+        collection.claimed = claimed.unwrap();
     }
 
     COLLECTIONS.save(deps.storage, collection_addr.clone(), &collection)?;
@@ -396,6 +401,7 @@ pub fn claim_tokens(
             vec_msgs.push(callback);
         }
         collection.claimed += quantity;
+        COLLECTIONS.save(deps.storage, collection_addr.clone(), &collection)?;
 
         Ok(response
             .add_messages(vec_msgs)

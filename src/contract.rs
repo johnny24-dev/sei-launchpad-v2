@@ -110,7 +110,8 @@ pub fn execute(
             creator_wallet,
             mint_groups,
             iterated_uri,
-            time_can_claim
+            time_can_claim,
+            claimed
         } => update_collection(
             deps,
             env,
@@ -125,7 +126,8 @@ pub fn execute(
             creator_wallet,
             mint_groups,
             iterated_uri,
-            time_can_claim
+            time_can_claim,
+            claimed
         ),
         ExecuteMsg::UpdateConfig {
             extension,
