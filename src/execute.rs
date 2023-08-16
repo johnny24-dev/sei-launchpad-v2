@@ -345,6 +345,11 @@ pub fn claim_tokens(
     let mut collection = COLLECTIONS.load(deps.storage, collection_addr.clone())?;
     let start = collection.claimed + 1;
     let end = collection.claimed + quantity;
+
+    if end > (collection.supply as u64) {
+        return Err(ContractError::SoldOut {});
+    }
+
     let mut vec_msgs = Vec::new();
     let response = Response::new();
     for i in start..=end {
