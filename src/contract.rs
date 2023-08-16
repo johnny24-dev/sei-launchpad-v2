@@ -109,7 +109,8 @@ pub fn execute(
             royalty_wallet,
             creator_wallet,
             mint_groups,
-            iterated_uri
+            iterated_uri,
+            time_can_claim
         } => update_collection(
             deps,
             env,
@@ -123,14 +124,15 @@ pub fn execute(
             royalty_wallet,
             creator_wallet,
             mint_groups,
-            iterated_uri
+            iterated_uri,
+            time_can_claim
         ),
         ExecuteMsg::UpdateConfig {
             extension,
             fee,
             registeration_open,
         } => update_config(deps, env, info, extension, fee, registeration_open),
-        
+
         ExecuteMsg::ClaimToken {
             collection,
             quantity

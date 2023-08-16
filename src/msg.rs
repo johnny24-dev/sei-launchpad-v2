@@ -44,6 +44,7 @@ pub enum ExecuteMsg {
         creator_wallet: Option<String>,
         mint_groups: Option<Vec<MintGroup>>,
         iterated_uri: Option<bool>,
+        time_can_claim:Option<u64>
     },
     MintNative {
         collection: String,
