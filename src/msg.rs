@@ -52,6 +52,10 @@ pub enum ExecuteMsg {
         merkle_proof: Option<Vec<Vec<u8>>>,
         hashed_address: Option<Vec<u8>>,
     },
+    ClaimToken {
+        collection: String,
+        quantity:u64
+    }
     /*MintCw20 {
         group: String,
         recipient: Option<Addr>,

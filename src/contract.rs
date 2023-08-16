@@ -10,7 +10,7 @@ use cw_utils::{maybe_addr, parse_reply_instantiate_data};
 // use cw2::set_contract_version;
 
 use crate::error::ContractError;
-use crate::execute::{mint_native, register_collection, update_collection, update_config};
+use crate::execute::{mint_native, register_collection, update_collection, update_config, claim_tokens};
 use crate::helpers::{create_group_key, create_min_log_key};
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{
@@ -130,6 +130,11 @@ pub fn execute(
             fee,
             registeration_open,
         } => update_config(deps, env, info, extension, fee, registeration_open),
+        
+        ExecuteMsg::ClaimToken {
+            collection,
+            quantity
+        } => claim_tokens(deps, env, info, collection, quantity)
     }
 }
 
