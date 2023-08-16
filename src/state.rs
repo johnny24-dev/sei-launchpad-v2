@@ -31,7 +31,8 @@ pub struct Collection {
     pub mint_groups: Vec<MintGroup>,
     pub extension: Extension,
     pub iterated_uri: bool,
-    pub claimed:u64
+    pub claimed:u64,
+    pub time_can_claim:u64
 }
 
 #[cw_serde]

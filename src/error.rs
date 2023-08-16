@@ -27,6 +27,9 @@ pub enum ContractError {
     #[error("Group Not Open to Mint")]
     GroupNotOpenToMint {},
 
+    #[error("Not Open to Claim")]
+    NotOpenToClaim {},
+
     #[error("Invalid Funds")]
     InvalidFunds {},
 

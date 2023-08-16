@@ -65,6 +65,7 @@ pub fn execute(
             mint_groups,
             extension,
             iterated_uri,
+            time_can_claim
         } => register_collection(
             deps,
             env,
@@ -80,7 +81,7 @@ pub fn execute(
             mint_groups,
             iterated_uri,
             extension,
-            
+            time_can_claim
         ),
         ExecuteMsg::MintNative {
             collection,

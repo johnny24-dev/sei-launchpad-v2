@@ -65,6 +65,7 @@ pub fn register_collection(
     mint_groups: Vec<MintGroup>,
     iterated_uri: bool,
     extension: Extension,
+    time_can_claim: u64,
 ) -> Result<Response, ContractError> {
     let mut config: Config = CONFIG.load(deps.storage)?;
 
@@ -87,6 +88,7 @@ pub fn register_collection(
         extension,
         iterated_uri,
         claimed: 0,
+        time_can_claim,
     };
 
     INSTANTIATE_INFO.save(deps.storage, config.next_reply_id.clone(), &collection)?;
@@ -350,44 +352,50 @@ pub fn claim_tokens(
         return Err(ContractError::SoldOut {});
     }
 
-    let mut vec_msgs = Vec::new();
-    let response = Response::new();
-    for i in start..=end {
-        let log_key = create_min_log_key(&collection_addr, &(i).to_string());
-        let recipient = MINT_LOG.load(deps.storage, log_key)?;
-        // Init royalty extension
-        let extension = Some(Cw2981Metadata {
-            royalty_payment_address: Some(collection.royalty_wallet.clone().to_string()),
-            royalty_percentage: Some(collection.royalty_percent),
-            ..Cw2981Metadata::default()
-        });
+    let time_now = _env.block.time.seconds() * 1000;
+    if (time_now > collection.time_can_claim) || (collection.next_token_id == collection.supply) {
+        let mut vec_msgs = Vec::new();
+        let response = Response::new();
 
-        // Prepare the mint message
-        let mint_msg = Cw2981ExecuteMsg::Mint {
-            token_id: i.to_string(),
-            owner: recipient.to_string(),
-            token_uri: Some(create_token_uri(
-                &collection.token_uri,
-                &i.to_string(),
-                &collection.iterated_uri,
-            )),
-            extension,
-        };
+        for i in start..=end {
+            let log_key = create_min_log_key(&collection_addr, &(i).to_string());
+            let recipient = MINT_LOG.load(deps.storage, log_key)?;
+            // Init royalty extension
+            let extension = Some(Cw2981Metadata {
+                royalty_payment_address: Some(collection.royalty_wallet.clone().to_string()),
+                royalty_percentage: Some(collection.royalty_percent),
+                ..Cw2981Metadata::default()
+            });
 
-        // Send the mint message
-        let callback = Cw721Contract::<Empty, Empty>(
-            collection.cw721_address.clone().unwrap(),
-            PhantomData,
-            PhantomData,
-        )
-        .call(mint_msg)?;
+            // Prepare the mint message
+            let mint_msg = Cw2981ExecuteMsg::Mint {
+                token_id: i.to_string(),
+                owner: recipient.to_string(),
+                token_uri: Some(create_token_uri(
+                    &collection.token_uri,
+                    &i.to_string(),
+                    &collection.iterated_uri,
+                )),
+                extension,
+            };
 
-        vec_msgs.push(callback);
+            // Send the mint message
+            let callback = Cw721Contract::<Empty, Empty>(
+                collection.cw721_address.clone().unwrap(),
+                PhantomData,
+                PhantomData,
+            )
+            .call(mint_msg)?;
+
+            vec_msgs.push(callback);
+        }
+        collection.claimed += quantity;
+
+        Ok(response
+            .add_messages(vec_msgs)
+            .add_attribute("action", "claim token")
+            .add_attribute("collection", collection_addr))
+    } else {
+        return Err(ContractError::NotOpenToClaim {});
     }
-    collection.claimed += quantity;
-
-    Ok(response
-        .add_messages(vec_msgs)
-        .add_attribute("action", "claim token")
-        .add_attribute("collection", collection_addr))
 }

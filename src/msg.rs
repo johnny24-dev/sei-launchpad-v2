@@ -31,6 +31,7 @@ pub enum ExecuteMsg {
         mint_groups: Vec<MintGroup>,
         extension: Extension,
         iterated_uri: bool,
+        time_can_claim:u64
     },
     UpdateCollection {
         collection: String,
